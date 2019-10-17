@@ -53,6 +53,11 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 	@objc public var hasPhoneNumberExample: Bool = true {
 		didSet { updatePlaceholder() }
 	}
+    
+    /// Text attributes to use for the example phone number
+    public var phoneNumberExampleAttributes: [NSAttributedString.Key: Any] = [:] {
+        didSet { updatePlaceholder() }
+    }
 
 	open var selectedCountry: FPNCountry? {
 		didSet {
@@ -416,11 +421,11 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 	}
 
 	private func updatePlaceholder() {
-        guard hasPhoneNumberExample else {
-            placeholder = nil
-            return
+        if hasPhoneNumberExample, let placeholder = buildPlaceholderString() {
+            self.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: phoneNumberExampleAttributes)
+        } else {
+            self.placeholder = nil
         }
-        placeholder = buildPlaceholderString()
     }
     
     private func buildPlaceholderString() -> String? {
