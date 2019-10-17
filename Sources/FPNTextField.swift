@@ -51,12 +51,7 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 	/// Present in the placeholder an example of a phone number according to the selected country code.
 	/// If false, you can set your own placeholder. Set to true by default.
 	@objc public var hasPhoneNumberExample: Bool = true {
-		didSet {
-			if hasPhoneNumberExample == false {
-				placeholder = nil
-			}
-			updatePlaceholder()
-		}
+		didSet { updatePlaceholder() }
 	}
 
 	open var selectedCountry: FPNCountry? {
@@ -421,22 +416,25 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 	}
 
 	private func updatePlaceholder() {
+        guard hasPhoneNumberExample else {
+            placeholder = nil
+            return
+        }
+        placeholder = buildPlaceholderString()
+    }
+    
+    private func buildPlaceholderString() -> String? {
 		if let countryCode = selectedCountry?.code {
 			do {
 				let example = try phoneUtil.getExampleNumber(countryCode.rawValue)
 				let phoneNumber = "+\(example.countryCode.stringValue)\(example.nationalNumber.stringValue)"
 
 				if let inputString = formatter?.inputString(phoneNumber) {
-					placeholder = remove(dialCode: "+\(example.countryCode.stringValue)", in: inputString)
-				} else {
-					placeholder = nil
+					return remove(dialCode: "+\(example.countryCode.stringValue)", in: inputString)
 				}
-			} catch _ {
-				placeholder = nil
-			}
-		} else {
-			placeholder = nil
+			} catch _ { }
 		}
+        return nil
 	}
 
 	// - FPNCountryPickerDelegate
