@@ -7,6 +7,22 @@ open class FPNCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewDat
 			reloadAllComponents()
 		}
 	}
+    
+    /// The style of the bars (picker bar and search bar)
+    open var barStyle: UIBarStyle = .default
+    
+    /// The translucency of the bar
+    open var isTranslucent: Bool = false
+    
+    /// Attributes for the country names
+    open var countryNameAttributes: [NSAttributedString.Key: Any]? {
+        didSet { reloadAllComponents() }
+    }
+    
+    /// Attributes for the country codes
+    open var countryCodeAttributes: [NSAttributedString.Key: Any]? {
+        didSet { reloadAllComponents() }
+    }
 
 	open var selectedLocale: Locale?
 	weak var countryPickerDelegate: FPNCountryPickerDelegate?
@@ -161,7 +177,19 @@ open class FPNCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewDat
 			resultView = view as! FPNCountryView
 		}
 
-		resultView.setup(countries[row])
+		let country = countries[row]
+        
+        resultView.flagImageView.image = country.flag
+        
+        resultView.countryCodeLabel.attributedText = NSAttributedString(
+            string: country.phoneCode,
+            attributes: countryNameAttributes
+        )
+        
+        resultView.countryNameLabel.attributedText = NSAttributedString(
+            string: country.name,
+            attributes: countryNameAttributes
+        )
 
 		if !showPhoneNumbers {
 			resultView.countryCodeLabel.isHidden = true

@@ -16,6 +16,12 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 			layoutIfNeeded()
 		}
 	}
+    
+    /// The text field used to display the country code
+    public let phoneCodeTextField: UITextField = UITextField()
+    
+    /// The input view for selecting country
+    public let countryPicker: FPNCountryPicker = FPNCountryPicker()
 
 	private var flagWidthConstraint: NSLayoutConstraint?
 	private var flagHeightConstraint: NSLayoutConstraint?
@@ -27,14 +33,12 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 
 		return CGSize(width: width, height: height)
 	}
-
-	private var phoneCodeTextField: UITextField = UITextField()
-	private lazy var countryPicker: FPNCountryPicker = FPNCountryPicker()
-	private lazy var phoneUtil: NBPhoneNumberUtil = NBPhoneNumberUtil()
+	
+    private let phoneUtil: NBPhoneNumberUtil = NBPhoneNumberUtil()
 	private var nbPhoneNumber: NBPhoneNumber?
 	private var formatter: NBAsYouTypeFormatter?
 
-	public var flagButton: UIButton = UIButton()
+	public let flagButton: UIButton = UIButton()
 
 	open override var font: UIFont? {
 		didSet {
@@ -388,7 +392,18 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 			let searchCountryViewController = FPNSearchCountryViewController(countries: countries)
 			let navigationViewController = UINavigationController(rootViewController: searchCountryViewController)
 
-			searchCountryViewController.delegate = self
+            searchCountryViewController.delegate = self
+            
+            
+            navigationViewController.navigationBar.barStyle = countryPicker.barStyle
+            navigationViewController.navigationBar.isTranslucent = countryPicker.isTranslucent
+            navigationViewController.navigationBar.barStyle = countryPicker.barStyle
+            navigationViewController.navigationBar.tintColor = countryPicker.tintColor
+            
+            searchCountryViewController.countryNameAttributes = countryPicker.countryNameAttributes
+            searchCountryViewController.countryCodeAttributes = countryPicker.countryCodeAttributes
+            searchCountryViewController.view.backgroundColor = countryPicker.backgroundColor
+            searchCountryViewController.tableView.backgroundColor = countryPicker.backgroundColor
 
 			parentViewController?.present(navigationViewController, animated: true, completion: nil)
 		}
@@ -397,7 +412,9 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 	private func getToolBar(with items: [UIBarButtonItem]) -> UIToolbar {
 		let toolbar: UIToolbar = UIToolbar()
 
-		toolbar.barStyle = UIBarStyle.default
+        toolbar.tintColor = countryPicker.tintColor
+		toolbar.barStyle = countryPicker.barStyle
+        toolbar.isTranslucent = countryPicker.isTranslucent
 		toolbar.items = items
 		toolbar.sizeToFit()
 

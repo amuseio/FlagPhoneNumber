@@ -9,6 +9,9 @@
 import UIKit
 
 class FPNSearchCountryViewController: UITableViewController, UISearchResultsUpdating, UISearchControllerDelegate {
+    
+    var countryNameAttributes: [NSAttributedString.Key: Any]?
+    var countryCodeAttributes: [NSAttributedString.Key: Any]?
 
 	var searchController: UISearchController?
 	var list: [FPNCountry]?
@@ -56,13 +59,14 @@ class FPNSearchCountryViewController: UITableViewController, UISearchResultsUpda
 		searchController = UISearchController(searchResultsController: nil)
 		searchController?.searchResultsUpdater = self
 		searchController?.delegate = self
+        searchController?.searchBar.tintColor = navigationController?.navigationBar.tintColor
 
 		if #available(iOS 9.1, *) {
 			searchController?.obscuresBackgroundDuringPresentation = false
 		} else {
 			// Fallback on earlier versions
 		}
-
+        
 		if #available(iOS 11.0, *) {
 			navigationItem.searchController = searchController
 		} else {
@@ -105,10 +109,11 @@ class FPNSearchCountryViewController: UITableViewController, UISearchResultsUpda
 		let cell = UITableViewCell(style: .value1, reuseIdentifier: nil)
 		let country = getItem(at: indexPath)
 
-		cell.textLabel?.text = country.name
-		cell.detailTextLabel?.text = country.phoneCode
+        cell.backgroundColor = tableView.backgroundColor
+		cell.textLabel?.attributedText = NSAttributedString(string: country.name, attributes: countryNameAttributes)
+		cell.detailTextLabel?.attributedText = NSAttributedString(string: country.phoneCode, attributes: countryCodeAttributes)
 		cell.imageView?.image = country.flag
-
+        
 		return cell
 	}
 

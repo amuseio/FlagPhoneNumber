@@ -13,10 +13,4 @@ class FPNCountryView: NibLoadingView {
 	required init?(coder aDecoder: NSCoder) {
 		super.init(coder: aDecoder)
 	}
-
-	func setup(_ country: FPNCountry) {
-		flagImageView.image = country.flag
-		countryCodeLabel.text = country.phoneCode
-		countryNameLabel.text = country.name
-	}
 }
