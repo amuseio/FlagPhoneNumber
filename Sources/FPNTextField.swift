@@ -154,10 +154,10 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 	}
 
 	open override func updateConstraints() {
-		super.updateConstraints()
-
 		flagWidthConstraint?.constant = flagButtonSize.width
 		flagHeightConstraint?.constant = flagButtonSize.height
+        
+        super.updateConstraints()
 	}
 
 	open override func leftViewRect(forBounds bounds: CGRect) -> CGRect {
