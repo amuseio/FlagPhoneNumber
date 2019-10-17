@@ -37,8 +37,9 @@ class StyledViewController: UIViewController {
         
         view.backgroundColor = UIColor(white: 0.3, alpha: 1)
         
-        phoneNumberTextField.font = UIFont.systemFont(ofSize: 20)
-        phoneNumberTextField.textColor = UIColor(white: 0.9, alpha: 1)
+        phoneNumberTextField.defaultTextAttributes = [
+            .foregroundColor: UIColor(white: 0.9, alpha: 1)
+        ]
         phoneNumberTextField.backgroundColor = UIColor(white: 0.5, alpha: 1)
         phoneNumberTextField.phoneNumberExampleAttributes = [
             .foregroundColor: UIColor(white: 0.6, alpha: 1)

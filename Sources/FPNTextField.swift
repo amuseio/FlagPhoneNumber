@@ -51,6 +51,12 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 			phoneCodeTextField.textColor = textColor
 		}
 	}
+    
+    open override var defaultTextAttributes: [NSAttributedString.Key : Any] {
+        didSet {
+            phoneCodeTextField.defaultTextAttributes = defaultTextAttributes
+        }
+    }
 
 	/// Present in the placeholder an example of a phone number according to the selected country code.
 	/// If false, you can set your own placeholder. Set to true by default.
