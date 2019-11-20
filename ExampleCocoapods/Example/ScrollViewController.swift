@@ -24,6 +24,7 @@ class ScrollViewController: UIViewController {
 
 		phoneNumberTextField.parentViewController = self
 		phoneNumberTextField.delegate = self
+        phoneNumberTextField.pickerType = .fullscreen
 	}
 }
 

@@ -8,25 +8,23 @@
 
 import UIKit
 
-
-
 class FPNSearchCountryViewController: UITableViewController, UISearchResultsUpdating, UISearchControllerDelegate {
-    
-    var countryNameAttributes: [NSAttributedString.Key: Any]?
-    var countryCodeAttributes: [NSAttributedString.Key: Any]?
-
+	
+	var countryNameAttributes: [NSAttributedString.Key: Any]?
+	var countryCodeAttributes: [NSAttributedString.Key: Any]?
+	
 	var searchController: UISearchController?
 	var list: [FPNCountry]?
 	var results: [FPNCountry]?
-    var selectedCountryCode : FPNCountryCode?
-    var selectedCellColor : UIColor?
+	var selectedCountryCode : FPNCountryCode?
+	var selectedCellColor : UIColor?
 
 	weak var delegate: FPNDelegate?
 
-    init(countries: [FPNCountry], selectedCountryCode : FPNCountryCode?) {
+	init(countries: [FPNCountry], selectedCountryCode : FPNCountryCode?) {
 		self.list = countries
-        self.selectedCountryCode = selectedCountryCode
-        super.init(nibName: nil, bundle: nil)
+		self.selectedCountryCode = selectedCountryCode
+		super.init(nibName: nil, bundle: nil)
 	}
 
 	required init?(coder aDecoder: NSCoder) {
@@ -47,8 +45,8 @@ class FPNSearchCountryViewController: UITableViewController, UISearchResultsUpda
 		} else {
 			// Fallback on earlier versions
 		}
-        
-        updateInitialScrollPosition()
+		
+		updateInitialScrollPosition()
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
@@ -60,32 +58,30 @@ class FPNSearchCountryViewController: UITableViewController, UISearchResultsUpda
 	@objc private func dismissController() {
 		dismiss(animated: true, completion: nil)
 	}
-    
-    private func updateInitialScrollPosition(){
-        tableView.setNeedsLayout()
-        tableView.layoutIfNeeded()
-        if let countryCode = selectedCountryCode,
-            let index = list?.firstIndex(where: {$0.code == countryCode}){
-            tableView.scrollToRow(
-                at: IndexPath(row: index, section: 0),
-                at: .top,
-                animated: false)
-        }
-    }
+	
+	private func updateInitialScrollPosition(){
+		tableView.setNeedsLayout()
+		tableView.layoutIfNeeded()
+		if let countryCode = selectedCountryCode,let index = list?.firstIndex(where: {$0.code == countryCode}){
+			tableView.scrollToRow(at: IndexPath(row: index, section: 0),at: .top, animated: false)
+			
+		}
+		
+	}
     
 	private func initSearchBarController() {
 		searchController = UISearchController(searchResultsController: nil)
 		searchController?.searchResultsUpdater = self
 		searchController?.delegate = self
-        searchController?.hidesNavigationBarDuringPresentation = false
-        searchController?.searchBar.tintColor = navigationController?.navigationBar.tintColor
+		searchController?.hidesNavigationBarDuringPresentation = false
+		searchController?.searchBar.tintColor = navigationController?.navigationBar.tintColor
 
 		if #available(iOS 9.1, *) {
 			searchController?.obscuresBackgroundDuringPresentation = false
 		} else {
 			// Fallback on earlier versions
 		}
-        
+		
 		if #available(iOS 11.0, *) {
 			navigationItem.searchController = searchController
 		} else {
@@ -132,35 +128,37 @@ class FPNSearchCountryViewController: UITableViewController, UISearchResultsUpda
 		cell.textLabel?.attributedText = NSAttributedString(string: country.name, attributes: countryNameAttributes)
 		cell.detailTextLabel?.attributedText = NSAttributedString(string: country.phoneCode, attributes: countryCodeAttributes)
 		cell.imageView?.image = country.flag
-        
-        if let selectedCellColor = selectedCellColor{
-            let selectedBackgroundView  = UIView()
-
-            selectedBackgroundView.backgroundColor = selectedCellColor
-            cell.selectedBackgroundView = selectedBackgroundView
-        }
-       
+		
+		if let selectedCellColor = selectedCellColor{
+			let selectedBackgroundView  = UIView()
+			selectedBackgroundView.backgroundColor = selectedCellColor
+			cell.selectedBackgroundView = selectedBackgroundView
+			
+		}
+		
 		return cell
 	}
 
 	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		//tableView.deselectRow(at: indexPath, animated: true)
 
-        let country = getItem(at: indexPath)
-        
-        selectedCountryCode = country.code
+		let country = getItem(at: indexPath)
+		
+		selectedCountryCode = country.code
 		delegate?.fpnDidSelect(country: country)
 
 		searchController?.isActive = false
 		searchController?.searchBar.resignFirstResponder()
 	}
     
-    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let country = getItem(at: indexPath)
-        if let countryCode = selectedCountryCode , country.code == countryCode{
-            cell.setSelected(true, animated: false)
-        }
-    }
+	override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+		let country = getItem(at: indexPath)
+		if let countryCode = selectedCountryCode , country.code == countryCode{
+			cell.setSelected(true, animated: false)
+			
+		}
+		
+	}
     
 
 	// UISearchResultsUpdating
