@@ -8,7 +8,12 @@
 
 import UIKit
 
-open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
+open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate,UITextFieldDelegate {
+	
+	public enum PickerType{
+		case normal
+		case fullscreen
+	}
 
 	/// The size of the flag button
 	@objc public var flagButtonSize: CGSize = CGSize(width: 32, height: 32) {
@@ -16,13 +21,14 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 			layoutIfNeeded()
 		}
 	}
-    
-    /// The text field used to display the country code
-    public let phoneCodeTextField: UITextField = UITextField()
-    
-    /// The input view for selecting country
-    public let countryPicker: FPNCountryPicker = FPNCountryPicker()
-
+	
+	/// The text field used to display the country code
+	public let phoneCodeTextField: UITextField = UITextField()
+	
+	/// The input view for selecting country
+	public let countryPicker: FPNCountryPicker = FPNCountryPicker()
+	public var pickerType : PickerType = .normal
+	
 	private var flagWidthConstraint: NSLayoutConstraint?
 	private var flagHeightConstraint: NSLayoutConstraint?
 
@@ -34,11 +40,13 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 		return CGSize(width: width, height: height)
 	}
 	
-    private let phoneUtil: NBPhoneNumberUtil = NBPhoneNumberUtil()
+
+	private let phoneUtil: NBPhoneNumberUtil = NBPhoneNumberUtil()
 	private var nbPhoneNumber: NBPhoneNumber?
 	private var formatter: NBAsYouTypeFormatter?
 
 	public let flagButton: UIButton = UIButton()
+	public var selectedCellColor : UIColor? = nil
 
 	open override var font: UIFont? {
 		didSet {
@@ -51,23 +59,23 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 			phoneCodeTextField.textColor = textColor
 		}
 	}
-    
-    open override var defaultTextAttributes: [NSAttributedString.Key : Any] {
-        didSet {
-            phoneCodeTextField.defaultTextAttributes = defaultTextAttributes
-        }
-    }
+	
+	open override var defaultTextAttributes: [NSAttributedString.Key : Any] {
+		didSet {
+			phoneCodeTextField.defaultTextAttributes = defaultTextAttributes
+		}
+	}
 
 	/// Present in the placeholder an example of a phone number according to the selected country code.
 	/// If false, you can set your own placeholder. Set to true by default.
 	@objc public var hasPhoneNumberExample: Bool = true {
 		didSet { updatePlaceholder() }
 	}
-    
+	
     /// Text attributes to use for the example phone number
-    public var phoneNumberExampleAttributes: [NSAttributedString.Key: Any] = [:] {
-        didSet { updatePlaceholder() }
-    }
+	public var phoneNumberExampleAttributes: [NSAttributedString.Key: Any] = [:] {
+		didSet { updatePlaceholder() }
+	}
 
 	open var selectedCountry: FPNCountry? {
 		didSet {
@@ -120,14 +128,15 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 	private func setupFlagButton() {
 		flagButton.imageView?.contentMode = .scaleAspectFit
 		flagButton.accessibilityLabel = "flagButton"
-		flagButton.addTarget(self, action: #selector(displayCountryKeyboard), for: .touchUpInside)
+		flagButton.addTarget(self, action: #selector(showCountryPicker), for: .touchUpInside)
 		flagButton.translatesAutoresizingMaskIntoConstraints = false
 		flagButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
 	}
 
 	private func setupPhoneCodeTextField() {
 		phoneCodeTextField.font = font
-		phoneCodeTextField.isUserInteractionEnabled = false
+		phoneCodeTextField.isUserInteractionEnabled = true
+		phoneCodeTextField.delegate = self
 		phoneCodeTextField.translatesAutoresizingMaskIntoConstraints = false
 	}
 
@@ -162,8 +171,8 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 	open override func updateConstraints() {
 		flagWidthConstraint?.constant = flagButtonSize.width
 		flagHeightConstraint?.constant = flagButtonSize.height
-        
-        super.updateConstraints()
+
+		super.updateConstraints()
 	}
 
 	open override func leftViewRect(forBounds bounds: CGRect) -> CGRect {
@@ -184,6 +193,15 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 			countryPicker.setCountry(countryCode)
 		} else if let firstCountry = countryPicker.countries.first {
 			countryPicker.setCountry(firstCountry.code)
+		}
+	}
+    
+    @objc private func showCountryPicker(){
+		switch pickerType {
+		case .normal:
+			displayCountryKeyboard()
+		case .fullscreen:
+			displayAlphabeticKeyBoard()
 		}
 	}
 
@@ -395,21 +413,24 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 
 	private func showSearchController() {
 		if let countries = countryPicker.countries {
-			let searchCountryViewController = FPNSearchCountryViewController(countries: countries)
+			let searchCountryViewController = FPNSearchCountryViewController(countries: countries ,selectedCountryCode: selectedCountry!.code)
 			let navigationViewController = UINavigationController(rootViewController: searchCountryViewController)
 
-            searchCountryViewController.delegate = self
-            
-            
-            navigationViewController.navigationBar.barStyle = countryPicker.barStyle
-            navigationViewController.navigationBar.isTranslucent = countryPicker.isTranslucent
-            navigationViewController.navigationBar.barStyle = countryPicker.barStyle
-            navigationViewController.navigationBar.tintColor = countryPicker.tintColor
-            
-            searchCountryViewController.countryNameAttributes = countryPicker.countryNameAttributes
-            searchCountryViewController.countryCodeAttributes = countryPicker.countryCodeAttributes
-            searchCountryViewController.view.backgroundColor = countryPicker.backgroundColor
-            searchCountryViewController.tableView.backgroundColor = countryPicker.backgroundColor
+			searchCountryViewController.delegate = self
+			
+			
+			navigationViewController.navigationBar.barStyle = countryPicker.barStyle
+			navigationViewController.navigationBar.isTranslucent = countryPicker.isTranslucent
+			navigationViewController.navigationBar.barStyle = countryPicker.barStyle
+			navigationViewController.navigationBar.tintColor = countryPicker.tintColor
+			
+			searchCountryViewController.countryNameAttributes = countryPicker.countryNameAttributes
+			searchCountryViewController.countryCodeAttributes = countryPicker.countryCodeAttributes
+			searchCountryViewController.view.backgroundColor = countryPicker.backgroundColor
+			searchCountryViewController.tableView.backgroundColor = countryPicker.backgroundColor
+
+			searchCountryViewController.tableView.separatorStyle = .none
+			searchCountryViewController.selectedCellColor = selectedCellColor
 
 			parentViewController?.present(navigationViewController, animated: true, completion: nil)
 		}
@@ -444,14 +465,14 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 	}
 
 	private func updatePlaceholder() {
-        if hasPhoneNumberExample, let placeholder = buildPlaceholderString() {
-            self.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: phoneNumberExampleAttributes)
-        } else {
-            self.placeholder = nil
-        }
-    }
-    
-    private func buildPlaceholderString() -> String? {
+		if hasPhoneNumberExample, let placeholder = buildPlaceholderString() {
+			self.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: phoneNumberExampleAttributes)
+		} else {
+			self.placeholder = nil
+		}
+	}
+
+	private func buildPlaceholderString() -> String? {
 		if let countryCode = selectedCountry?.code {
 			do {
 				let example = try phoneUtil.getExampleNumber(countryCode.rawValue)
@@ -476,5 +497,11 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate {
 
 	internal func fpnDidSelect(country: FPNCountry) {
 		setFlag(for: country.code)
+	}
+	
+	// - UITextFieldDelegate
+	public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+		showCountryPicker()
+		return false
 	}
 }
