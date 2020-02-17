@@ -21,20 +21,24 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate,UITe
 			layoutIfNeeded()
 		}
 	}
-	
+    
+    public var codeAndNumberSpacing: CGFloat = 0 {
+        didSet { setNeedsLayout() }
+    }
+    
 	/// The text field used to display the country code
 	public let phoneCodeTextField: UITextField = UITextField()
 	
 	/// The input view for selecting country
 	public let countryPicker: FPNCountryPicker = FPNCountryPicker()
 	public var pickerType : PickerType = .normal
-	
+    
 	private var flagWidthConstraint: NSLayoutConstraint?
 	private var flagHeightConstraint: NSLayoutConstraint?
 
 	/// The size of the leftView
 	private var leftViewSize: CGSize {
-		let width = flagButtonSize.width + getWidth(text: phoneCodeTextField.text!)
+		let width = flagButtonSize.width + getWidth(text: phoneCodeTextField.text!) + codeAndNumberSpacing
 		let height = bounds.height
 
 		return CGSize(width: width, height: height)
