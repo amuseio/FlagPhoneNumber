@@ -8,7 +8,7 @@
 
 import UIKit
 
-open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate,UITextFieldDelegate {
+open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate, UITextFieldDelegate {
 	
 	public enum PickerType{
 		case normal
@@ -88,7 +88,7 @@ open class FPNTextField: UITextField, FPNCountryPickerDelegate, FPNDelegate,UITe
 	}
 
 	/// If set, a search button appears in the picker inputAccessoryView to present a country search view controller
-	@IBOutlet public var parentViewController: UIViewController?
+	@IBOutlet public weak var parentViewController: UIViewController?
 
 	/// Input Accessory View for the texfield
 	@objc public var textFieldInputAccessoryView: UIView?
